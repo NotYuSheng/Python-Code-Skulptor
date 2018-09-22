@@ -1,0 +1,180 @@
+# Yu Sheng 22/09/18
+
+import simplegui
+import math
+
+image1 = simplegui.load_image('https://i.imgur.com/JxGJa4B.png') # Background
+image2 = simplegui.load_image('https://i.imgur.com/BWf2RTF.png') # Blocks
+image3 = simplegui.load_image('https://i.imgur.com/7S4W6wa.png') # Ghost Blocks
+
+S_Block_Flip = 0
+S_Block_Flip_Ghost = 0
+S_Block_Rotation = 0
+
+S_Block_X = 81
+S_Block_Y = 0
+S_Block_Y_Ghost = 342
+    
+fall = 1
+freeze = 0
+
+def timer1_handler():
+    global S_Block_Y
+    if S_Block_Y <= 324:
+        S_Block_Y += 18
+
+def timer2_handler():
+    global S_Block_X
+    if S_Block_X > 27:
+        S_Block_X -= 18
+
+def timer3_handler():
+    global S_Block_X
+    if S_Block_X < 153:
+        S_Block_X += 18
+        
+def timer4_handler():
+    global S_Block_Y
+    if S_Block_Y <= 324:
+        S_Block_Y += 18
+        
+def timer5_handler():
+    global freeze
+    freeze = 1
+        
+def reset_timer5():
+    timer5.stop()
+    timer5.start()
+        
+def draw_handler(canvas):
+    # Draw Background
+    canvas.draw_image(image1, (181 / 2, 361 / 2), (181, 361), (181 / 2, 361 / 2), (181, 361))
+    
+    # Freeze block when it reaches the bottom
+    if S_Block_Y <= 324:
+        freeze = 0
+    if S_Block_Y >= 342:
+        timer5.start()
+    #canvas.draw_image(image2, (144 / 2, 198 / 2), (144, 198), (144 / 2, 198 / 2), (144, 198))    
+    #canvas.draw_image(image, center_source, width_height_source, center_dest, width_height_dest)
+
+    # J Block
+    #canvas.draw_image(image2, (27, 18), (54, 36), (300, 300), (27, 18))    
+
+    # I Block 
+    #canvas.draw_image(image2, (36, 81), (72, 18), (300, 300), (72, 18))    
+
+    # O Block
+    #canvas.draw_image(image2, (108, 72), (36, 36), (300, 300), (36, 36))    
+
+    # L Block
+    #canvas.draw_image(image2, (27, 126), (54, 36), (300, 300), (54, 36))    
+
+    # Z Block
+    #canvas.draw_image(image2, (117, 126), (54, 36), (300, 300), (54, 36))    
+
+    # T Block
+    #canvas.draw_image(image2, (27, 180), (54, 36), (300, 300), (54, 36))    
+
+    # S Block Ghost
+    canvas.draw_image(image3, (117, 180), (54, 36), (S_Block_X, S_Block_Y_Ghost - S_Block_Flip_Ghost), (54, 36), S_Block_Rotation)
+    
+    # S Block
+    canvas.draw_image(image2, (117, 180), (54, 36), (S_Block_X, S_Block_Y), (54, 36), S_Block_Rotation)
+
+# Keys
+def keydown(key):
+    global S_Block_Rotation, S_Block_X, S_Block_X_Vel, S_Block_Y
+    global freeze
+    if freeze == 0:
+        if key == simplegui.KEY_MAP['left']:
+            reset_timer5()
+            if S_Block_X > 27:
+                S_Block_X -= 18
+                timer2.start()
+
+        if key == simplegui.KEY_MAP['right']:
+            reset_timer5()
+            if S_Block_X < 153:
+                S_Block_X += 18
+                timer3.start()
+
+        if key == simplegui.KEY_MAP['up']:
+            reset_timer5()
+            # Declare global variable
+            global S_Block_Flip, S_Block_Flip_Ghost
+            
+            # Rotate Block by 180
+            S_Block_Rotation += math.pi / 2
+
+            # Prevent Block from rotating out of the map
+            if S_Block_X == 18:
+                S_Block_X += 18        
+            if   S_Block_Flip == 0:
+                S_Block_Flip = 1
+                S_Block_X += 9
+                S_Block_Y += 9
+                if S_Block_Y >= 342:
+                    S_Block_Y -= 18
+                S_Block_Flip_Ghost = 9
+
+            elif S_Block_Flip == 1:
+                if S_Block_X == 171:
+                    S_Block_X -= 18
+                S_Block_X -= 9
+                S_Block_Y += 9            
+                S_Block_Flip = 2
+                S_Block_Flip_Ghost = 0                
+
+            elif S_Block_Flip == 2:
+                S_Block_X -= 9
+                S_Block_Y -= 9            
+                S_Block_Flip = 3
+                S_Block_Flip_Ghost = 9                
+
+            elif S_Block_Flip == 3:
+                # Prevent Block from rotating out of the map
+                if S_Block_X == 162:
+                    S_Block_X -= 18
+                S_Block_X +=9
+                S_Block_Y -= 9
+                S_Block_Flip = 0
+                S_Block_Flip_Ghost = 0                
+
+        if key == simplegui.KEY_MAP['down']:
+            if S_Block_Y < 325:
+                S_Block_Y += 18
+                timer4.start()
+
+        if key == simplegui.KEY_MAP['space']:
+            if   S_Block_Flip_Ghost == 0:
+                S_Block_Y = 342
+            elif S_Block_Flip_Ghost == 9:
+                S_Block_Y = 333
+            freeze = 1
+
+def keyup(key):
+    global freeze
+    if freeze == 0 :
+        if key == simplegui.KEY_MAP['left']:
+            timer2.stop()
+        if key == simplegui.KEY_MAP['right']:
+            timer3.stop()
+        if key == simplegui.KEY_MAP['down']:
+            timer4.stop()
+        
+frame = simplegui.create_frame('1 Block Tetris', 181, 361)
+frame.set_draw_handler(draw_handler)
+frame.set_keydown_handler(keydown)
+frame.set_keyup_handler(keyup)
+timer1 = simplegui.create_timer(1000, timer1_handler)
+timer2 = simplegui.create_timer(75, timer2_handler)
+timer3 = simplegui.create_timer(75, timer3_handler)
+timer4 = simplegui.create_timer(100, timer4_handler)
+timer5 = simplegui.create_timer(1000, timer5_handler)
+
+timer1.start()
+
+frame.start()
+
+
