@@ -1,0 +1,371 @@
+# Project begun on 18/09/18
+# Project part 1 completed on 22/09/18
+# Five Card Charlie not in effect
+# The side rule is rarely offered. When it is in effect, a player who collects a hand of five cards 
+# (two cards plus three hits) without going bust is immediately paid even money, irrespective of the dealer's hand.
+# Dealer always stands on if > 17
+# Player must draw onto minimum of 16
+
+import simplegui
+import random
+
+deck = []
+
+player_hand = []
+dealer_hand = []
+
+player_score = 0
+dealer_score = 0
+
+image1 = simplegui.load_image('http://storage.googleapis.com/codeskulptor-assets/cards_jfitz.png')
+image2 = simplegui.load_image('http://commondatastorage.googleapis.com/codeskulptor-assets/card_back.png')
+
+message1 = "Player and Dealer Blackjack"
+message2 = "Dealer wins"
+message3 = "Player wins"
+message4 = "Both Player and Dealer bust"
+message5 = "Dealer bust, Player wins"
+message6 = "Player bust, Dealer wins"
+message7 = "Dealer has Blackjack"
+message8 = "Player has Blackjack"
+message9 = "Tie, Push"
+
+gamestate = 1
+
+def hit_handler():
+    if gamestate == 1:
+        # Declare global variables
+        global dealer_score, player_score
+
+        # Add 1 card to player hand
+        player_brain.add_card_into_hand()
+
+        # Update score
+        count_score("player")
+
+        # Check if player bust
+        check_bust()
+
+    # delete when finished
+    # BOOKMARK
+    print "####################"
+    print "Player_score       : ", player_score
+    print "Dealer_score       : ", dealer_score
+    print "player_hand        : ", player_hand
+    print "dealer_hand        : ", dealer_hand
+    print "deck               : ", deck
+    print "player_hand        : ", assign.display_num_card_player_hand()
+    print "dealer_hand        : ", assign.display_num_card_dealer_hand()
+
+def stand_handler():
+    if player_score > 15:
+        # Declare global variables
+        global gamestate
+
+        while dealer_score < 17:
+            # Dealer draws card
+            dealer_brain.add_card_into_hand()
+
+            # Update dealer score
+            count_score("dealer")  
+        gamestate = 0
+    
+def reset_handler():
+    main()
+        
+def check_bust():
+    global gamestate
+    # Check if player bust
+    if player_score > 21:
+        stand_handler()
+        gamestate = 0  
+        
+def count_score(name):
+    global dealer_score, player_score
+    if  (name == "player"):
+        player_score = 0
+        a = len(player_hand)
+        my_list = range(0,a,1)
+        for i in my_list:
+            if player_hand[i][0] > 10:
+                player_score += 10
+            elif player_hand[i][0] == 1:
+                player_score += 11
+            else:
+                player_score += player_hand[i][0]
+        if player_score > 21:
+            for i in my_list:
+                if player_hand[i][0] == 1:
+                    player_score -= 10
+        
+    elif(name == "dealer"):
+        dealer_score = 0
+        a = len(dealer_hand)
+        my_list = range(0,a,1)
+        for i in my_list:
+            if dealer_hand[i][0] > 10:
+                dealer_score += 10
+            elif dealer_hand[i][0] == 1:
+                dealer_score += 11
+            else:
+                dealer_score += dealer_hand[i][0]
+        if dealer_score > 21:
+            for i in my_list:
+                if dealer_hand[i][0] == 1:
+                    dealer_score -= 10        
+        
+def shuffle():
+    # stupid way of shuffling, too lazy to change ######
+    # BOOKMARK
+    global deck, exist
+    deck = []
+    while(len(deck) < 52):
+        # Suit Randomizer
+        suit   = random.randint(1, 4)
+        # Number Randomizer
+        number = random.randint(1, 13)
+        
+        # New Card
+        generated_card = (number, suit)
+        
+        # Check how many cards there are in deck
+        a = len(deck)
+        
+        # Adding first card in
+        if(a == 0):
+            deck.append(generated_card)
+            exist = 1
+            
+        # Check card already in deck
+        my_list = range(0,a,1)
+        for i in my_list:
+            if(deck[i] == generated_card):
+                exist = 1
+            
+        # If card is new, add into deck
+        if exist == 0:
+            deck.append(generated_card)
+        else:
+            exist = 0   
+                 
+class Assign_Number():
+    def __init__(self):
+        self.remain_card = 51
+        self.drawn = 0
+        self.num_player_hand = 0
+        self.num_dealer_hand = 0
+    
+    def count_remain_card(self): 
+        self.remain_card -= 1
+        self.drawn += 1
+    
+    def count_player_hand(self):
+        self.num_player_hand += 1
+        
+    def count_dealer_hand(self):
+        self.num_dealer_hand += 1
+
+    # Function to assign number to next card
+    def display_remain_card(self):
+        return self.remain_card
+    
+    def display_num_card_drawn(self):
+        return self.drawn
+    
+    def display_num_card_player_hand(self):
+        return self.num_player_hand
+    
+    def display_num_card_dealer_hand(self):
+        return self.num_dealer_hand
+
+class Brain:
+    def __init__(self, name):
+        self.name = name
+
+    def get_card_X(self, num):
+        self.number = deck[51 - num][0]
+        self.card_X = (self.number - 1) * 72 + 36
+        return self.card_X
+    
+    def get_card_Y(self, num):
+        suit = deck[51 - num][1]
+        if suit == 1:
+            self.card_Y = 48
+        elif suit == 2:
+            self.card_Y = 144
+        elif suit == 3:
+            self.card_Y = 240
+        elif suit == 4:
+            self.card_Y = 336
+        return self.card_Y
+    
+    def add_card_into_hand(self):
+        # Create Unique number, suit, card_order
+        self.number     = deck[assign.display_remain_card()][0]
+        self.suit       = deck[assign.display_remain_card()][1]
+        self.card_order = assign.display_num_card_drawn()
+        if  (self.name == "player"):
+            player_hand.append([self.number, self.suit, self.card_order])
+            assign.count_player_hand()
+
+        elif(self.name == "dealer"):
+            dealer_hand.append([self.number, self.suit, self.card_order])
+            assign.count_dealer_hand()
+        
+        assign.count_remain_card()
+        
+class Hand():
+    def __init__(self, name):
+        self.name = name
+    
+    def draw_card(self, canvas):
+        if  (self.name == "player"):
+            a = assign.display_num_card_player_hand()
+            my_list = range(0,a,1)
+            for i in my_list:
+                player = Brain("player")
+                card_order = player_hand[i][2]
+                canvas.draw_image(image1, (player.get_card_X(card_order), player.get_card_Y(card_order)), 
+                                  (72, 96), (44 + 80 * i , 540), (72, 96))
+                if  (len(player_hand) > 7):
+                    canvas.draw_image(image1, (player.get_card_X(card_order), player.get_card_Y(card_order)), 
+                                      (72, 96), (44 + 80 * (i - 7), 430), (72, 96))                    
+        elif(self.name == "dealer"):
+            a = assign.display_num_card_dealer_hand()
+            my_list = range(0,a,1)
+            for i in my_list:
+                dealer = Brain("dealer")
+                card_order = dealer_hand[i][2]
+                canvas.draw_image(image1, (dealer.get_card_X(card_order), dealer.get_card_Y(card_order)), 
+                                  (72, 96), (44 + 80 * i , 60), (72, 96))
+                if  (len(dealer_hand) > 7):
+                    canvas.draw_image(image1, (dealer.get_card_X(card_order), dealer.get_card_Y(card_order)), 
+                                      (72, 96), (44 + 80 * (i - 7), 170), (72, 96)) 
+
+# change name should be game start or smth ######
+# BOOKMARK
+def main():
+    # Declare global variables
+    global assign, gamestate
+    global player_brain, player_hand, player_score 
+    global dealer_brain, dealer_hand, dealer_score
+    
+    # Class assignments
+    assign = Assign_Number()
+    player_brain = Brain("player")
+    dealer_brain = Brain("dealer")
+    
+    # Reset values
+    gamestate = 1
+    player_score = 0
+    dealer_score = 0
+    player_hand = []
+    dealer_hand = []
+    
+    # Create deck
+    shuffle()
+    
+    # Player and dealer draws 2 cards each
+    player_brain.add_card_into_hand()
+    dealer_brain.add_card_into_hand()
+    player_brain.add_card_into_hand()
+    dealer_brain.add_card_into_hand()
+    
+    # Update score
+    count_score("player")
+    count_score("dealer")  
+
+    # Delete when game complete #####
+    # BOOKMARK
+    print "####################"
+    print "Player_score       : ", player_score
+    print "Dealer_score       : ", dealer_score
+    print "player_hand        : ", player_hand
+    print "dealer_hand        : ", dealer_hand
+    print "deck               : ", deck
+    print "player_hand        : ", assign.display_num_card_player_hand()
+    print "dealer_hand        : ", assign.display_num_card_dealer_hand()
+    
+def draw(canvas):
+    # Declare global variables
+    global gamestate
+    # Define variables
+    player = Hand("player")
+    dealer = Hand("dealer")
+    player_blackjack = 0
+    dealer_blackjack = 0
+    
+    # Draw Cards
+    player.draw_card(canvas)
+    dealer.draw_card(canvas)
+    
+    # If game is over, remove dealer cover
+    if gamestate == 1:
+        canvas.draw_image(image2, (35.5, 48), (71, 96), (124, 60), (72, 96))
+    
+    # Check for Blackjack
+    if (player_hand[0][0] == 1 and player_hand[1][0] == 1) and (dealer_hand[0][0] == 1 and dealer_hand[1][0] == 1):
+        player_blackjack = 1
+        dealer_blackjack = 1
+        gamestate = 0
+    elif player_hand[0][0] == 1 and player_hand[1][0] == 1:
+        player_blackjack = 1
+        gamestate = 0
+    elif dealer_hand[0][0] == 1 and dealer_hand[1][0] == 1:
+        dealer_blackjack = 1
+        gamestate = 0  
+    
+    # Gameover    
+    elif gamestate == 0:
+        # Declare variable
+        winner = ""
+        bust   = [0, 0]
+        color = "Black"
+        
+        # Determine winner if neither busted
+        if   dealer_score > player_score:
+            message = message2
+        elif player_score > dealer_score:
+            message = message3
+        if   dealer_score == player_score:
+            message = message9
+
+        # Determine if player or dealer busted
+        if dealer_score > 21:
+            bust[0] = 1
+            message = message5
+        if player_score > 21:
+            bust[1] = 1
+            message = message6
+
+        # If player and dealer both bust
+        if bust[0] == 1 and bust[1] == 1:
+            message = message4
+        
+        # If either player or dealer has blackjack
+        if dealer_blackjack == 1 and player_blackjack == 1:
+            message = message1
+            color = "Red"
+        elif dealer_blackjack == 1:
+            message = message7
+        elif player_blackjack == 1:
+            message = message8
+
+        # Draw end game text
+        canvas.draw_text(message, (10, 300), 40, color, 'sans-serif')
+
+# Activation
+main()
+
+# Create a frame and assign callbacks to event handlers
+frame = simplegui.create_frame("Blackjack", 569, 600)
+frame.set_canvas_background("Green")
+frame.set_draw_handler(draw)
+button1 = frame.add_button('Hit'  , hit_handler  , 100)
+button2 = frame.add_button('Stand', stand_handler, 100)
+button3 = frame.add_button('Reset', main, 100)
+
+# Start the frame animation
+frame.start()
+
+
