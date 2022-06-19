@@ -1,0 +1,99 @@
+# https://py2.codeskulptor.org/#user45_lwMEQBimBj_18.py
+
+# 06/10/18
+
+import simplegui
+import random
+
+image1 = simplegui.load_image('https://i.imgur.com/3WPIZpB.png')
+image2 = simplegui.load_image('https://i.imgur.com/Q93OKeX.png')
+list = ["Bulbasaur","Ivysaur","Venusaur","Charmander","Charmeleon","Charizard","Squirtle","Wartortle","Blastoise","Caterpie","Metapod","Butterfree","Weedle","Kakuna","Beedrill","Pidgey","Pidgeotto","Pidgeot","Rattata","Raticate","Spearow","Fearow","Ekans","Arbok","Pikachu","Raichu","Sandshrew","Sandslash","Nidoran","Nidorina","Nidoqueen","Nidoran","Nidorino","Nidoking","Clefairy","Clefable","Vulpix","Ninetales","Jigglypuff","Wigglytuff","Zubat","Golbat","Oddish","Gloom","Vileplume","Paras","Parasect","Venonat","Venomoth","Diglett","Dugtrio","Meowth","Persian","Psyduck","Golduck","Mankey","Primeape","Growlithe","Arcanine","Poliwag","Poliwhirl","Poliwrath","Abra","Kadabra","Alakazam","Machop","Machoke","Machamp","Bellsprout","Weepinbell","Victreebel","Tentacool","Tentacruel","Geodude","Graveler","Golem","Ponyta","Rapidash","Slowpoke","Slowbro","Magnemite","Magneton","Farfetch'd","Doduo","Dodrio","Seel","Dewgong","Grimer","Muk","Shellder","Cloyster","Gastly","Haunter","Gengar","Onix","Drowzee","Hypno","Krabby","Kingler","Voltorb","Electrode","Exeggcute","Exeggutor","Cubone","Marowak","Hitmonlee","Hitmonchan","Lickitung","Koffing","Weezing","Rhyhorn","Rhydon","Chansey","Tangela","Kangaskhan","Horsea","Seadra","Goldeen","Seaking","Staryu","Starmie","Mr. Mime","Scyther","Jynx","Electabuzz","Magmar","Pinsir","Tauros","Magikarp","Gyarados","Lapras","Ditto","Eevee","Vaporeon","Jolteon","Flareon","Porygon","Omanyte","Omastar","Kabuto","Kabutops","Aerodactyl","Snorlax","Articuno","Zapdos","Moltres","Dratini","Dragonair","Dragonite","Mewtwo","Mew"]
+slide = [0,1,1,1,1,1,1,1,1]
+
+def mouse_handler(pos):
+    if slide[0] == 0:
+        # Click top center
+        if pos >= 640 / 2 - 64 / 3 and pos <= 640 / 2 + 64 / 3 and 640 / 6 - 64 / 3 and 640 / 6 - 64 / 3:
+            print "test"
+        #(640 / 2, 640 / 6)
+
+# Randomize pokemon
+def main():
+    global image, pokemon_X, pokemon_Y
+    # Shiny pokemon
+    shiny = random.randint(1, 100)
+    if shiny == 1:
+        image = image2
+    else:
+        image = image1
+    
+    # Random pokemon
+    pokemon = random.randint(1, 151)
+    
+    # Pokemon X
+    if pokemon % 16 == 0:
+        pokemon_X = 992
+    else:
+        pokemon_X = (pokemon % 16) * 64 - 32
+
+    # Pokemon Y
+    if (pokemon % 16) == 0:
+        pokemon_Y = pokemon / 16 * 64 - 32
+    else:
+        pokemon_Y = (abs(pokemon / 16) + 1) * 64 - 32
+        
+    print list[pokemon - 1]
+    print pokemon
+    if shiny == 1:
+        print "SHINY!"
+
+def draw(canvas):
+    top_left_center_source = pokemon_X - 64 / 6 * 2, pokemon_Y
+    top_cent_center_source = pokemon_X             , pokemon_Y
+    top_righ_center_source = pokemon_X + 64 / 6 * 2, pokemon_Y - 64 / 6 * 2
+    cen_left_center_source = pokemon_X - 64 / 6 * 2, pokemon_Y
+    cen_cent_center_source = pokemon_X             , pokemon_Y
+    cen_righ_center_source = pokemon_X + 64 / 6 * 2, pokemon_Y
+    bot_left_center_source = pokemon_X - 64 / 6 * 2, pokemon_Y + 64 / 6 * 2
+    bot_cent_center_source = pokemon_X             , pokemon_Y + 64 / 6 * 2
+    bot_righ_center_source = pokemon_X + 64 / 6 * 2, pokemon_Y + 64 / 6 * 2
+    #canvas.draw_image(image, center_source, width_height_source, center_dest, width_height_dest)
+
+    # Top left
+    canvas.draw_image(image, (pokemon_X - 64 / 6 * 2, pokemon_Y - 64 / 6 * 2), (64 / 3, 64 / 3), (640 / 6, 640 / 6), (640 / 3, 640 / 3))
+    
+    # Top center
+    canvas.draw_image(image, (pokemon_X, pokemon_Y - 64 / 6 * 2), (64 / 3, 64 / 3), (640 / 2, 640 / 6), (640 / 3, 640 / 3))
+    
+    # Top right
+    canvas.draw_image(image, (pokemon_X + 64 / 6 * 2, pokemon_Y - 64 / 6 * 2), (64 / 3, 64 / 3), (640 / 6 * 5, 640 / 6), (640 / 3, 640 / 3))
+
+    # Center left
+    canvas.draw_image(image, (pokemon_X - 64 / 6 * 2, pokemon_Y), (64 / 3, 64 / 3), (640 / 6, 640 / 2), (640 / 3, 640 / 3))
+    
+    # Center center
+    canvas.draw_image(image, (pokemon_X, pokemon_Y), (64 / 3, 64 / 3), (640 / 2, 640 / 2), (640 / 3, 640 / 3))
+    
+    # Center right
+    canvas.draw_image(image, (pokemon_X + 64 / 6 * 2, pokemon_Y), (64 / 3, 64 / 3), (640 / 6 * 5, 640 / 2), (640 / 3, 640 / 3))
+
+    # Bottom left
+    canvas.draw_image(image, (pokemon_X - 64 / 6 * 2, pokemon_Y + 64 / 6 * 2), (64 / 3, 64 / 3), (640 / 6, 640 / 6 * 5), (640 / 3, 640 / 3))
+
+    # Bottom center
+    canvas.draw_image(image, (pokemon_X, pokemon_Y + 64 / 6 * 2), (64 / 3, 64 / 3), (640 / 2, 640 / 6 * 5), (640 / 3, 640 / 3))
+
+    # Bottom right
+    canvas.draw_image(image, (pokemon_X + 64 / 6 * 2, pokemon_Y + 64 / 6 * 2), (64 / 3, 64 / 3), (640 / 6 * 5, 640 / 6 * 5), (640 / 3, 640 / 3))
+    
+main()    
+    
+frame = simplegui.create_frame("Pokemon slide", 640, 640)
+frame.set_draw_handler(draw)
+frame.set_canvas_background('White')
+frame.set_mouseclick_handler(mouse_handler)
+
+
+
+# Start the frame animation
+frame.start()
