@@ -1,0 +1,502 @@
+# 30/09/18
+
+import math
+import random
+import simplegui
+
+image = simplegui.load_image('https://i.imgur.com/CupSq3i.png')
+
+# Initial position
+center_source_bird = 272.5, 70
+center_dest_menu_Y = 140
+center_dest_bird_Y = 256
+ground1_X =  143
+ground2_X = 143 * 3 - 5
+rotation = 0
+
+# Initial velocity
+bird_Y_vel = 0
+ground_X_vel =  - 1
+menu_vel = 0.3
+pipe_X_vel = 1
+
+# Animation
+tap_start = 0
+tap_score = 0
+flap_animation = 0
+menu_animation = 0
+
+# Draw declaration
+get_ready = False
+lost = False
+menu = True
+new = False
+play = False
+score2 = False
+why = False
+
+# ETC
+highscore = []
+pipe = []
+score = 0
+
+# Mouse handler
+def mouse_handler(pos):
+    global bird_Y_vel, center_dest_bird_Y, ground_X_vel
+    global tap_start, tap_score
+    global get_ready, lost, menu, new, play
+    global pipe, score
+    
+    # Start button
+    if menu == True:
+        if   pos[0] >= 40 and pos[0] <= 120 and pos[1] >= 368 and pos[1] <= 382:
+            tap_start = 5
+            menu = False
+            get_ready = True
+            
+        elif pos[0] >= 166 and pos[0] <= 246 and pos[1] >= 368 and pos[1] <= 382:
+            tap_score = 5
+            # BOOKMARK
+            
+    elif get_ready == True:
+        if   pos[0] >= 37 and pos[0] <= 63 and pos[1] >= 36 and pos[1] <= 64:
+            print "pause"
+            # BOOKMARK
+        else:
+            get_ready = False
+            play = True
+            # Upward vel
+            bird_Y_vel = - 3
+            timer5.start()
+            timer4.start()
+
+    elif play == True and lost == False:
+        # If it is currently descending
+        if timer2.is_running() == True:
+            # Stop descending
+            timer2.stop()
+        # Upward vel
+        bird_Y_vel = - 3
+        timer5.start()
+        timer4.start()
+        
+    # OK button
+    elif lost == True and pos[0] >= 40 and pos[0] <= 120 and pos[1] >= 368 and pos[1] <= 382:
+        # Reset game
+        lost = False
+        menu = True
+        new  = False
+        play = False
+        why  = False
+        center_dest_bird_Y = 256
+        ground_X_vel = - 1   
+        score = 0
+        pipe = []
+        timer1.start()
+        
+# Flap animation
+def timer1_handler():
+    global center_source_bird, flap_animation
+    if   flap_animation == 0:
+        center_source_bird = 272.5, 70
+    elif flap_animation == 1 or flap_animation == 3:
+        center_source_bird = 272.5, 70 + 26
+    elif flap_animation == 2:
+        center_source_bird = 272.5 - 25 - 16, 70 + 26 + 34
+        
+    # Cycle and loop
+    flap_animation += 1
+    if flap_animation > 3:
+        flap_animation = 0
+
+# Rotate downward
+def timer2_handler():
+    global rotation
+    if rotation < 1.5:
+        rotation += 0.1
+    else:
+        timer2.stop()
+
+# In air time before rotation
+def timer3_handler():
+    timer2.start()
+    timer3.stop()
+
+# Rotate upward
+def timer4_handler():
+    global rotation
+    if rotation > - 0.5 :
+        rotation -= 0.1
+    else:
+        timer4.stop()
+        timer3.start()
+
+# Stop flying upwards after X seconds
+def timer5_handler():
+    global bird_Y_vel
+    bird_Y_vel = 0
+    timer5.stop()
+
+# Spawn pipe
+def timer7_handler():
+    pipe_Y = random.randint(135, 295)
+    pipe.append([312, pipe_Y, 312])
+
+# Score font
+def score_font(check):
+    global why
+    if   check >= 99:
+        center_source_score2 = 198.5, 250
+        score2 = True
+        score_token = 9
+        why = True
+    elif check >= 90:
+        center_source_score2 = 198.5, 250
+        score2 = True
+        score_token = check - 90
+    elif check >= 80:
+        center_source_score2 = 188.5, 250
+        score2 = True
+        score_token = check - 80
+    elif check >= 70:
+        center_source_score2 = 178.5, 250
+        score2 = True
+        score_token = check - 70
+    elif check >= 60:
+        center_source_score2 = 168.5, 250
+        score2 = True
+        score_token = check - 60
+    elif check >= 50:
+        center_source_score2 = 290.5, 190
+        score2 = True
+        score_token = check - 50
+    elif check >= 40:
+        center_source_score2 = 290.5, 178
+        score2 = True
+        score_token = check - 40
+    elif check >= 30:
+        center_source_score2 = 292.5, 155
+        score2 = True
+        score_token = check - 30
+    elif check >= 20:
+        center_source_score2 = 292.5, 139
+        score2 = True
+        score_token = check - 20
+    elif check >= 10:
+        center_source_score2 = 293.5, 123
+        score2 = True
+        score_token = check - 10
+    else:
+        center_source_score2 = 0, 0
+        score2 = False
+        score_token = 10
+
+    if   check == 0 or score_token == 0:
+        center_source_score1 = 291.5, 105
+    elif check == 1 or score_token == 1:
+        center_source_score1 = 293.5, 123
+    elif check == 2 or score_token == 2:
+        center_source_score1 = 292.5, 139
+    elif check == 3 or score_token == 3:
+        center_source_score1 = 292.5, 155
+    elif check == 4 or score_token == 4:
+        center_source_score1 = 290.5, 178
+    elif check == 5 or score_token == 5:
+        center_source_score1 = 290.5, 190
+    elif check == 6 or score_token == 6:
+        center_source_score1 = 168.5, 250
+    elif check == 7 or score_token == 7:
+        center_source_score1 = 178.5, 250
+    elif check == 8 or score_token == 8:
+        center_source_score1 = 188.5, 250
+    elif check == 9 or score_token == 9:
+        center_source_score1 = 198.5, 250
+        
+    return [center_source_score1, center_source_score2, score2]
+        
+# Update pipe
+def update_pipe():
+    global pipe_X_vel, score
+    if lost == False:
+        a = len(pipe)
+        my_list = range(0, a, 1)
+        for i in my_list:
+            # Update score
+            if pipe[i][2] < 143 * 2 / 3:
+                score += 1
+                pipe[i][2] += 312
+            # Remove pipe when out of screen
+            if pipe[i][0] < -26:
+                pipe.pop(i)
+                break
+            # Update pipe movement
+            else:
+                pipe[i][0] -= pipe_X_vel
+                pipe[i][2] -= pipe_X_vel
+    
+# Check if bird hits anything
+def check_lost():
+    global lost, new
+    if lost == False:
+        # Bird hits ground
+        if center_dest_bird_Y  > 383:
+            lost = True
+            highscore.append(score)
+            highscore.sort(reverse = True)
+
+        # Bird hits pipe
+        a = len(pipe)
+        my_list = range(0, a, 1)
+        for i in my_list:
+            if pipe[i][0] - 30 <= 143 * 2 / 3 and pipe[i][0] + 30 >= 143 * 2 / 3 and (pipe[i][1] - 40 >= center_dest_bird_Y or pipe[i][1] + 40 <= center_dest_bird_Y): 
+                lost = True
+                highscore.append(score)
+                highscore.sort(reverse = True)
+                break
+    if lost == True:
+        if score == highscore[0]:
+            if   len(highscore) >= 2:
+                if highscore[0] != highscore[1]:
+                    new = True
+            elif len(highscore) == 1:
+                new = True
+                
+# Draw pipe
+class Pipe:
+    def draw_pipe(self, canvas):
+        a = len(pipe)
+        my_list = range(0, a, 1)
+        for i in my_list:
+            self.pipe_X = pipe[i][0]
+            self.pipe_Y = pipe[i][1]
+            self.pipe_top    = self.pipe_Y - 50 - 135
+            self.pipe_bottom = self.pipe_Y + 50 + 121
+            
+            # Top pipe
+            canvas.draw_image(image, (315, 135 / 2), (26, 135), (self.pipe_X, self.pipe_top), (26 * 2, 135 * 2))
+
+            # Bottom pipe
+            canvas.draw_image(image, (343, 121 / 2), (26, 121), (self.pipe_X, self.pipe_bottom),   (26 * 2, 121 * 2))
+
+# Draw menu            
+def draw_menu(canvas):
+    global center_dest_menu_Y, menu_vel
+    if menu == True:
+        center_dest_menu_Y += menu_vel
+        # Rebounce
+        if   center_dest_menu_Y > 145:
+            menu_vel *= -1
+        elif center_dest_menu_Y < 135:
+            menu_vel *= -1
+                
+        #canvas.draw_image(image, center_source, width_height_source, center_dest, width_height_dest, rotation)
+        # (C). GEARS Studios 2013
+        canvas.draw_image(image, (405.5, 3.5), (95, 7), (143, 430), (95 * 2, 7 * 2))
+
+        # Title Flappy Bird
+        canvas.draw_image(image, (194, 184), (96, 22), (123, center_dest_menu_Y), (96 * 2, 22 * 2))
+
+        # Bird
+        canvas.draw_image(image, (center_source_bird), (17, 12), (245, center_dest_menu_Y), (17 * 2, 12 * 2))    
+
+        # Start button
+        canvas.draw_image(image, (262, 220), (40, 14), (80, 375 + tap_start), (40 * 2, 14 * 2))    
+
+        # Score button
+        canvas.draw_image(image, (264, 180), (40, 14), (206, 375 + tap_score), (40 * 2, 14 * 2))      
+
+        # Rate button
+        canvas.draw_image(image, (266, 157), (40, 14), (206, 335), (40 * 2, 14 * 2))      
+        
+# Draw get ready        
+def draw_get_ready(canvas):
+    global ground_X_vel, menu_vel
+    global center_source_bird, center_dest_bird_Y, center_source_score1
+    global lost
+    
+    if get_ready == True:
+        center_dest_bird_Y += menu_vel
+        # Rebounce
+        if   center_dest_bird_Y > 261:
+            menu_vel *= -1
+        elif center_dest_bird_Y < 251:
+            menu_vel *= -1
+
+        # Bird
+        canvas.draw_image(image, (center_source_bird), (17, 12), (143 * 2 / 3, center_dest_bird_Y), (17 * 2, 12 * 2))    
+
+        # Instructions
+        canvas.draw_image(image, (192, 147), (39, 49), (143 + 19, 280), (39 * 2, 49 * 2))    
+
+        # Get Ready
+        canvas.draw_image(image, (189.5, 232), (87, 22), (143, 180), (87 * 2, 22 * 2))    
+
+        # Add button tap animation
+        # Pause Button
+        canvas.draw_image(image, (293.5, 65), (13, 14), (50, 50), (13 * 2, 14 * 2))   
+        
+        # Draw declaration
+        center_source_score1 = score_font(score)[0]
+        
+        # Score BOOKMARK
+        canvas.draw_image(image, center_source_score1, (7, 10), (143, 50), (7 * 2, 10 * 2))
+
+# Draw play        
+def draw_play(canvas):
+    global center_dest_bird_Y
+    
+    if play == True:
+        # Check lost
+        check_lost()
+        
+        # Update bird Y
+        center_dest_bird_Y += bird_Y_vel
+        
+        # Bird
+        canvas.draw_image(image, (center_source_bird), (17, 12), (143 * 2 / 3, center_dest_bird_Y), (17 * 2, 12 * 2), rotation)    
+                
+        # Score >= 99
+        if why == True:
+            canvas.draw_text("Why?", (113, 256), 20, "White")
+            canvas.draw_text("Thanks for playing", (73, 276), 20, "White")
+            
+        # Lost  
+        if lost == False:
+            # Draw declaration
+            center_source_score1 = score_font(score)[0]
+            center_source_score2 = score_font(score)[1]
+            score2 				 = score_font(score)[2]
+            
+            # Score
+            if score2 == False:
+                canvas.draw_image(image, center_source_score1, (7, 10), (143, 50), (7 * 2, 10 * 2))
+            if score2 == True:
+                canvas.draw_image(image, center_source_score1, (7, 10), (151, 50), (7 * 2, 10 * 2))
+                canvas.draw_image(image, center_source_score2, (7, 10), (135, 50), (7 * 2, 10 * 2))
+            
+            # BOOKMARK add button tap animation 
+            # Pause Button
+            canvas.draw_image(image, (293.5, 65), (13, 14), (50, 50), (13 * 2, 14 * 2))  
+        
+        # Pipe
+        timer7.start()
+        
+# Draw lost
+def draw_lost(canvas):
+    global bird_Y_vel, ground_X_vel
+    if lost == True:
+        # Stop upward movements, have bird drop to the ground
+        if timer5.is_running() == True:
+            bird_Y_vel = 3
+        timer1.stop()
+        timer2.start()
+        timer3.stop()
+        timer4.stop()
+        timer5.stop()
+        timer7.stop()
+        ground_X_vel = 0
+        
+        # Fall to ground then stop
+        if center_dest_bird_Y > 383:   
+            timer2.stop()
+            bird_Y_vel   = 0
+
+        # BOOKMARK Stats menu should be animate, appears from bottom of screen to location
+
+        # Gameover
+        canvas.draw_image(image, (193, 208.5), (94, 19), (143, 100), (94 * 2, 19 * 2))
+
+        # Stats
+        canvas.draw_image(image, (203, 87), (113, 58), (143, 208), (113 * 2, 58 * 2))
+
+        # Share
+        canvas.draw_image(image, (262, 204), (40, 14), (206, 375), (40 * 2, 14 * 2))  
+
+        # OK
+        canvas.draw_image(image, (266, 141), (40, 14), (80, 375), (40 * 2, 14 * 2))
+
+        # Draw declaration
+        center_source_score1 = score_font(score)[0]
+        center_source_score2 = score_font(score)[1]
+        score2 				 = score_font(score)[2]
+
+        center_source_score3 = score_font(highscore[0])[0]
+        center_source_score4 = score_font(highscore[0])[1]
+        score3 				 = score_font(highscore[0])[2]
+
+        # BOOKMARK score is animate it counts up to score from 0
+        # Score
+        if score2 == False:
+            canvas.draw_image(image, center_source_score1, (7, 10), (230, 193), (7 * 2, 10 * 2))
+        if score2 == True:
+            canvas.draw_image(image, center_source_score1, (7, 10), (230, 193), (7 * 2, 10 * 2))
+            canvas.draw_image(image, center_source_score2, (7, 10), (214, 193), (7 * 2, 10 * 2))
+
+        # Best
+        if score3 == False:
+             canvas.draw_image(image, center_source_score3, (7, 10), (230, 236), (7 * 2, 10 * 2))
+        if score3 == True:
+            canvas.draw_image(image, center_source_score3, (7, 10), (230, 236), (7 * 2, 10 * 2))
+            canvas.draw_image(image, center_source_score4, (7, 10), (214, 236), (7 * 2, 10 * 2))            
+
+        # BOOKMARK Shine animation
+        # Medal
+        if   score >= 40:
+            canvas.draw_image(image, (231, 155), (22, 22), (78, 214), (22 * 2, 22 * 2))            
+        elif score >= 30:
+            canvas.draw_image(image, (253, 240), (22, 22), (78, 214), (22 * 2, 22 * 2))
+        elif score >= 20:
+            canvas.draw_image(image, (277, 240), (22, 22), (78, 214), (22 * 2, 22 * 2))  
+        elif score >= 10:
+            canvas.draw_image(image, (313, 148), (22, 22), (78, 214), (22 * 2, 22 * 2))  
+
+        # New
+        if new == True and score > 0:
+            canvas.draw_image(image, (154, 248.5), (16, 7), (178, 214), (16 * 2, 7 * 2))  
+
+# Draw handler
+def draw_handler(canvas):
+    global bird_Y_vel, ground_X_vel
+    global ground1_X, ground2_X
+    
+    # Gravity
+    if timer5.is_running() == False and lost == False:
+        bird_Y_vel = 3
+
+    # Background
+    canvas.draw_image(image, (143 / 2, 256 / 2), (143, 256), (143, 256), (143 * 2, 256 * 2))
+    
+    # Animate ground
+    if   ground1_X < - 143:
+        ground1_X =  143 * 3
+    elif ground2_X < -143:
+        ground2_X = 143 * 3
+    ground1_X += ground_X_vel   
+    ground2_X += ground_X_vel
+        
+    # Pipe
+    Pipe().draw_pipe(canvas)
+    update_pipe()
+    
+    # Ground
+    canvas.draw_image(image, (223, 55 / 2), (152, 55), (ground1_X, 256 * 2 - 55), (152 * 2, 55 * 2))
+    canvas.draw_image(image, (223, 55 / 2), (152, 55), (ground2_X, 256 * 2 - 55), (152 * 2, 55 * 2))
+
+    draw_menu(canvas)
+    draw_get_ready(canvas)
+    draw_play(canvas)
+    draw_lost(canvas)
+    
+frame = simplegui.create_frame("Flappy Bird", 143 * 2, 256 * 2)
+frame.set_draw_handler(draw_handler)
+frame.set_mouseclick_handler(mouse_handler)
+
+timer1 = simplegui.create_timer(80,   timer1_handler)
+timer2 = simplegui.create_timer(30,   timer2_handler)
+timer3 = simplegui.create_timer(500,  timer3_handler)
+timer4 = simplegui.create_timer(1,    timer4_handler)
+timer5 = simplegui.create_timer(300,  timer5_handler)
+timer7 = simplegui.create_timer(2750, timer7_handler)
+
+timer1.start()
+frame.start()
